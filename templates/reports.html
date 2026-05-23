@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Reports - Result Management System</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; background: #f4f6f9; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: #1e293b; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar-brand { padding: 24px; font-size: 20px; font-weight: bold; background: #0f172a; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 14px 24px; color: #cbd5e1; text-decoration: none; font-size: 15px; }
+        .sidebar-menu li a:hover, .sidebar-menu li.active a { background: #334155; color: #fff; border-left: 4px solid #38bdf8; }
+        .sidebar-footer { padding: 20px; background: #0f172a; }
+        .logout-btn { color: #ef4444; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; }
+        .header { margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        .header h1 { color: #1e293b; font-size: 28px; }
+
+        .search-box { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; display: flex; gap: 15px; align-items: flex-end; }
+        .form-group { flex-grow: 1; }
+        .form-group label { display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+        
+        .btn { background: #3b82f6; color: white; padding: 11px 24px; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn:hover { background: #2563eb; }
+
+        .report-card { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); max-width: 800px; margin: 20px auto 0 auto; border-top: 8px solid #0f172a; }
+        .report-title { text-align: center; margin-bottom: 30px; }
+        .report-title h2 { color: #1e293b; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .report-title p { color: #64748b; font-size: 14px; margin-top: 5px; }
+        
+        .student-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .meta-item { font-size: 14px; color: #334155; }
+        .meta-item strong { color: #0f172a; }
+
+        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .report-table th, .report-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .report-table th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 14px; text-transform: uppercase; }
+        .report-table td { font-size: 14px; color: #334155; }
+        
+        .grade-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .grade-pass { background: #d1e7dd; color: #0f5132; }
+        .grade-fail { background: #f8d7da; color: #dc3545; }
+        .error-msg { color: #dc3545; font-weight: 600; text-align: center; margin-top: 20px; padding: 15px; background: #f8d7da; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">Result Portal</div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/register-student">Student Registration</a></li>
+                <li><a href="/enter-marks">Manage Marks</a></li>
+                <li class="active"><a href="/reports">View Reports</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer"><a href="/" class="logout-btn">Log Out</a></div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Student Transcript Finder</h1>
+        </div>
+
+        <form action="/generate-report" method="POST" class="search-box">
+            <div class="form-group">
+                <label for="search_roll">Enter Registered Roll Number</label>
+                <input type="text" id="search_roll" name="search_roll" placeholder="ex: CS2026-001" required>
+            </div>
+            <div class="form-group">
+                <label for="search_sem">Select Term Semester</label>
+                <select id="search_sem" name="search_sem" required>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Generate Sheet</button>
+        </form>
+
+        {% if student_info %}
+        <div class="report-card">
+            <div class="report-title">
+                <h2>Official Academic Transcript</h2>
+                <p>Performance Ledger Record Card</p>
+            </div>
+
+            <div class="student-meta">
+                <div class="meta-item"><strong>Name:</strong> {{ student_info.full_name }}</div>
+                <div class="meta-item"><strong>Roll Number:</strong> {{ student_info.roll_number }}</div>
+                <div class="meta-item"><strong>Email ID:</strong> {{ student_info.email }}</div>
+                <div class="meta-item"><strong>Term Academic:</strong> Semester {{ selected_sem }}</div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Title Name</th>
+                        <th>Obtained Score</th>
+                        <th>Maximum Max</th>
+                        <th>Grade Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in marks_list %}
+                    <tr>
+                        <td>{{ row.subject_code }}</td>
+                        <td>{{ row.subject_name }}</td>
+                        <td>{{ row.obtained_marks }}</td>
+                        <td>{{ row.max_marks }}</td>
+                        <td>
+                            <span class="grade-badge {% if row.grade == 'F' %}grade-fail{% else %}grade-pass{% endif %}">
+                                {{ row.grade }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if error_msg %}
+            <div class="error-msg">{{ error_msg }}</div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

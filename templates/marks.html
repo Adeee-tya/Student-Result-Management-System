@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Control Center</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; background: #f4f6f9; height: 100vh; overflow: hidden; }
+        
+        /* Navigation Sidebar Layout */
+        .sidebar { width: 260px; background: #1e293b; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar-brand { padding: 24px; font-size: 20px; font-weight: bold; background: #0f172a; border-bottom: 1px solid #334155; }
+        .sidebar-menu { list-style: none; padding: 15px 0; flex-grow: 1; }
+        .sidebar-menu li a { display: block; padding: 14px 24px; color: #cbd5e1; text-decoration: none; font-size: 15px; }
+        .sidebar-menu li a:hover, .sidebar-menu li.active a { background: #334155; color: #fff; border-left: 4px solid #38bdf8; }
+        .sidebar-footer { padding: 20px; background: #0f172a; }
+        .logout-btn { color: #ef4444; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+        /* Workspace Panels Grid */
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; }
+        .header { margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        .header h1 { color: #1e293b; font-size: 28px; }
+
+        .workspace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .panel h2 { color: #1e293b; font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #475569; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+        
+        .btn { display: inline-block; width: 100%; padding: 12px; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; color: white; }
+        .btn-primary { background: #3b82f6; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-dark { background: #0f172a; }
+        .btn-dark:hover { background: #1e293b; }
+
+        /* SQL Output Terminal Style */
+        .sql-output-box { margin-top: 20px; background: #1e293b; color: #a7f3d0; padding: 15px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 13px; max-height: 250px; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">Result Portal</div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/register-student">Student Registration</a></li>
+                <li class="active"><a href="/enter-marks">Manage Marks</a></li>
+                <li><a href="/reports">View Reports</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer"><a href="/" class="logout-btn">Log Out</a></div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Academic Data & Execution Center</h1>
+        </div>
+
+        <div class="workspace-grid">
+            <div class="panel">
+                <h2>Grade Intake & Entry Form</h2>
+                <form action="/submit-marks" method="POST">
+                    <div class="form-group">
+                        <label for="roll_no">Student Roll Number</label>
+                        <input type="text" id="roll_no" name="roll_no" placeholder="e.g., CS2026-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subj_id">Subject Reference</label>
+                        <select id="subj_id" name="subj_id" required>
+                            <option value="1">CS101 - Database Management Systems</option>
+                            <option value="2">CS102 - Data Structures & Algorithms</option>
+                            <option value="3">CS103 - Object-Oriented Programming</option>
+                            <option value="4">CS104 - Computer Networks</option>
+                            <option value="5">CS105 - Operating Systems</option>
+                            <option value="6">MA101 - Discrete Mathematics</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sem_id">Academic Semester</label>
+                        <select id="sem_id" name="sem_id" required>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="marks_val">Obtained Score (Out of 100)</label>
+                        <input type="number" id="marks_val" name="marks_val" min="0" max="100" placeholder="0-100" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Process Score & Save</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Ad-Hoc SQL Direct Query Terminal</h2>
+                <form action="/run-query" method="POST">
+                    <div class="form-group">
+                        <label for="sql_command">Type and Execute Live MySQL Sandbox Queries</label>
+                        <textarea id="sql_command" name="sql_command" rows="6" placeholder="SELECT * FROM subjects;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Run Query String</button>
+                </form>
+                
+                <div class="sql-output-box">
+                    {% if query_result %}
+{{ query_result }}
+                    {% else %}
+-- SQL Terminal window idle. Enter a query above and execute...
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
