@@ -1,0 +1,12 @@
+# Python compiler cache (avoids tracking annoying local duplicates)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code environment configurations
+.vscode/
+.idea/
+
+# Operating system junk files
+.DS_Store
+Thumbs.db
