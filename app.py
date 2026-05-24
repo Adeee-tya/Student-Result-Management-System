@@ -8,7 +8,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="@d1tYaN01#",  # <-- Put your Workbench password here
+        password="@d1tYaN01#",  # <-- Your verified password configuration string
         database="student_management"
     )
 
@@ -46,12 +46,12 @@ def dashboard():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        # 1. Fetch total overall count of registered students
+        # Fetch total overall count of registered students
         cursor.execute("SELECT COUNT(*) as total FROM students")
         total_data = cursor.fetchone()
         total_students = total_data['total'] if total_data else 0
         
-        # 2. Fetch enrollment breakdown counts grouped neatly by semester numbers
+        # Fetch enrollment breakdown counts grouped neatly by semester numbers
         query = """
             SELECT current_semester, COUNT(*) as count 
             FROM students 
@@ -80,7 +80,7 @@ def register_student_page():
 def add_student_logic():
     roll_number = request.form['roll_number']
     admission_year = request.form['admission_year']
-    current_semester = request.form['current_semester']
+    current_semester = request.form['current_semester'] # <-- Perfect key link pairing
     full_name = request.form['full_name']
     email = request.form['email']
     gender = request.form['gender']
@@ -120,16 +120,16 @@ def process_marks_logic():
         if not student:
             cursor.close()
             conn.close()
-            return "<h3>Error: Roll Number not found.</h3><a href='/enter-marks'>Go Back</a>"
+            return render_template('marks.html',error_msg=f"Error:Roll Number '{roll_no} was not found in the portal records.'")
             
         query = "INSERT INTO marks (student_id, subject_id, semester_id, obtained_marks) VALUES (%s, %s, %s, %s)"
         cursor.execute(query, (student['student_id'], subject_id, semester_id, score))
         conn.commit()
         cursor.close()
         conn.close()
-        return f"<h3>Score of {score} logged successfully!</h3><a href='/enter-marks'>Back to Marks Entry</a>"
+        return render_template('marks.html', success_msg=f"✓ Score of {score} logged successfully for {roll_no}!")
     except Exception as e:
-        return f"<h3>Error Saving Marks:</h3><p>{e}</p><a href='/enter-marks'>Try Again</a>"
+        return render_template('marks.html', error_msg=f"Database Execution Fault: {e}")
 
 # 8. ROUTE: Core Terminal Handler - Runs ad-hoc SQL strings and renders data back
 @app.route('/run-query', methods=['POST'])
