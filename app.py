@@ -8,7 +8,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="@d1tYaN01#",  # <-- Your verified password configuration string
+        password="YOUR_LOCAL_MYSQL_PASSWORD"
         database="student_management"
     )
 
